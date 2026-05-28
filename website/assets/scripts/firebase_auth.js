@@ -3,9 +3,10 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthState
 
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
-const logoutForm = document.getElementById("logout-form");
+const logoutBtn = document.getElementById("logout-button");
 
 if (loginForm) {
+    console.log("login form found");
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         console.log("LOGIN SUBMITTED");
@@ -18,6 +19,7 @@ if (loginForm) {
             alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
+            window.location.href = "./dashboard.html";
         } catch (error) {
             alert("Failed to log in. Check your password or whether the referenced account exists.");
             console.error("Login failed:", error.code, error.message);
@@ -26,6 +28,7 @@ if (loginForm) {
 }
 
 if (signupForm) {
+    console.log("signup form found");
     signupForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         console.log("SIGNUP SUBMITTED");
@@ -57,32 +60,28 @@ if (signupForm) {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             
             alert("Account created: " + userCredential.user.email);
-            window.location.href = "./index.html";
             console.log("Account created:", userCredential.user.email);
+            window.location.href = "./dashboard.html";
         } catch (error) {
             console.error("Signup failed:", error.code, error.message);
         }
     });
 }
 
-/*if (logoutForm) {
-    logoutForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+if (logoutBtn) {
+    console.log("Found logout button");
+    logoutBtn.addEventListener("click", (event) => {
         try {
-            const button = logoutForm.querySelector("button");
-            button.textContent = "...";
-            button.disabled = true;
-
             signOut(auth);
 
-            alert("Successfully signed out");
-            console.log("Successfully signed out");
+            alert("Successfully logged out");
+            console.log("Successfully logged out");
 
         } catch (error) {
             console.error("Logout failed:", error.code, error.message);
         }
     });
-}*/
+}
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
