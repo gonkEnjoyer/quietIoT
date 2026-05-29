@@ -24,9 +24,10 @@ if (loginForm) {
             //alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
-            window.location.href = "./dashboard.html";
+            //window.location.href = "./dashboard.html";
         } catch (error) {
             alert("Failed to log in. \nError message: " + error.message);
+            loginForm.reset();
             console.error("Login failed:", error.code, error.message);
         }
     });
