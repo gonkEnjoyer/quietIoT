@@ -126,6 +126,8 @@ onAuthStateChanged(auth, (user) => {
                 }
             });
         }
+
+        window.markAuthReady?.();
     } else {
         if (window.location.pathname.endsWith("dashboard.html")) {
             alert("User is signed out. Please log in.")
@@ -135,6 +137,7 @@ onAuthStateChanged(auth, (user) => {
 
         if (loginPageLink) {
             loginPageLink.textContent = "Login"
+            window.markAuthReady?.();
         }
     }
 });

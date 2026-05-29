@@ -322,5 +322,5 @@ main{
 
 .loading-icon{
     width: 35px;
-    animation: infinite loading-spin 1.5s cubic-bezier(1,-0.3,0.2,1);
+    animation: infinite loading-spin 1s cubic-bezier(1,-0.3,0.2,1);
 }
