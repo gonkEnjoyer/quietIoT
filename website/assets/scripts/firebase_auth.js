@@ -1,5 +1,5 @@
 import { auth } from "./firebase_init.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut, validatePassword } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut, validatePassword } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
@@ -24,9 +24,10 @@ if (loginForm) {
             //alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
-            window.location.href = "./dashboard.html";
+            //window.location.href = "./dashboard.html";
         } catch (error) {
             alert("Failed to log in. \nError message: " + error.message);
+            loginForm.reset();
             console.error("Login failed:", error.code, error.message);
         }
     });
@@ -125,6 +126,8 @@ onAuthStateChanged(auth, (user) => {
                 }
             });
         }
+
+        window.markAuthReady?.();
     } else {
         if (window.location.pathname.endsWith("dashboard.html")) {
             alert("User is signed out. Please log in.")
@@ -134,6 +137,7 @@ onAuthStateChanged(auth, (user) => {
 
         if (loginPageLink) {
             loginPageLink.textContent = "Login"
+            window.markAuthReady?.();
         }
     }
 });
