@@ -1,5 +1,5 @@
 import { auth } from "./firebase_init.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut, validatePassword } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut, validatePassword } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");

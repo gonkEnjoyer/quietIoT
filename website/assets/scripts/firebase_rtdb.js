@@ -1,6 +1,6 @@
 import { db } from "./firebase_init.js";
 
-import {getDatabase, get, ref, child} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js"
+import {getDatabase, get, ref, child} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js"
 
 var timeInput = document.getElementById("time-input");
 var userInput = document.getElementById("user-input");
