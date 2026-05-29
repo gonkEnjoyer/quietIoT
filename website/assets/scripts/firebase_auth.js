@@ -7,6 +7,7 @@ const logoutBtn = document.getElementById("logout-button");
 const changePasswordBtn = document.getElementById("change-password-button")
 const userEmailSpan = document.getElementById("user-email-span");
 const deleteAccountBtn = document.getElementById("delete-account-button");
+const loginPageLink = document.querySelector(".right>a");
 
 if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
@@ -91,6 +92,10 @@ onAuthStateChanged(auth, (user) => {
         console.log("Logged in as:", user.email, user.uid);
         document.documentElement.classList.add("logged-in");
 
+        if (loginPageLink) {
+            loginPageLink.textContent = "Logged in"
+        }
+
         if (userEmailSpan){
             userEmailSpan.textContent = '"'+ user.email + '"';
         }
@@ -125,6 +130,10 @@ onAuthStateChanged(auth, (user) => {
             alert("User is signed out. Please log in.")
             console.log("User is signed out");
             window.location.href = "login.html";
+        }
+
+        if (loginPageLink) {
+            loginPageLink.textContent = "Login"
         }
     }
 });
