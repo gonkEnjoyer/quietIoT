@@ -1,13 +1,14 @@
 import { auth } from "./firebase_init.js";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, deleteUser, signOut, validatePassword } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
 
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const logoutBtn = document.getElementById("logout-button");
+const changePasswordBtn = document.getElementById("change-password-button")
 const userEmailSpan = document.getElementById("user-email-span");
+const deleteAccountBtn = document.getElementById("delete-account-button");
 
 if (loginForm) {
-    console.log("login form found");
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         console.log("LOGIN SUBMITTED");
@@ -16,20 +17,21 @@ if (loginForm) {
         const password = loginForm.querySelector("input[name='password-input']").value;
 
         try {
+            const button = loginForm.querySelector("button");
+            button.textContent = "...";
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             //alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
             window.location.href = "./dashboard.html";
         } catch (error) {
-            alert("Failed to log in. Check your password or whether the referenced account exists." + "\nError message:\n" + error.message);
+            alert("Failed to log in. \nError message: " + error.message);
             console.error("Login failed:", error.code, error.message);
         }
     });
 }
 
 if (signupForm) {
-    console.log("signup form found");
     signupForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         console.log("SIGNUP SUBMITTED");
@@ -70,9 +72,9 @@ if (signupForm) {
 }
 
 if (logoutBtn) {
-    console.log("Found logout button");
     logoutBtn.addEventListener("click", (event) => {
         try {
+            logoutBtn.textContent = "..."
             signOut(auth);
 
             window.location.reload();
@@ -88,8 +90,35 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("Logged in as:", user.email, user.uid);
         document.documentElement.classList.add("logged-in");
+
         if (userEmailSpan){
             userEmailSpan.textContent = '"'+ user.email + '"';
+        }
+
+        if (changePasswordBtn) {
+            changePasswordBtn.addEventListener("click", (event) => {
+                try {
+                    sendPasswordResetEmail(auth, user.email);
+
+                    alert('An email has been sent to "' + user.email + '" to reset your password.');
+                    console.log("Sent email to change password");
+                } catch (error) {
+                    console.error("Logout failed:", error.code, error.message);
+                }
+            });
+        }
+
+        if (deleteAccountBtn) {
+            deleteAccountBtn.addEventListener("click", (event) => {
+                try {
+                    confirm("Are you sure you wish to delete your account? You will lose all account and sensor data permanently.")
+                    deleteUser(user);
+                    console.log("User deleted");
+                    window.location.reload();
+                } catch (error) {
+                    console.error("Logout failed:", error.code, error.message);
+                }
+            });
         }
     } else {
         if (window.location.pathname.endsWith("dashboard.html")) {
