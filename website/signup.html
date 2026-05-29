@@ -26,13 +26,13 @@
                 <div class = "heading">
                     <h2>Sign Up</h2>
                 </div>
-                <form action = "">
+                <form id = "signup-form" method = "post" name = "signup-form">
                     <label for = "email-input">Email</label>
                     <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
                     <label for = "password-input">Password</label>
-                    <input type = "password" name = "password-input" id = "password-input" required/>
+                    <input type = "password" name = "password-input" id = "password-input" placeholder = "Must be at least 8 characters" required/>
                     <label for = "password-input">Confirm Password</label>
-                    <input type = "password" name = "password-input" id = "password-input" required/>
+                    <input type = "password" name = "password-confirm" id = "password-confirm" placeholder = "Re-enter your password" required/>
                     <!--<label for = "toggle">Show password<input type = "checkbox" id = "visibilityToggle" name = "toggle" onclick = "showPassword()"></label>!-->
                     <button type = "submit">Sign up &#8227</button>
                 </form>
@@ -51,5 +51,6 @@
                 }
             }
         </script>!-->
+        <script type="module" src="./assets/scripts/firebase_auth.js" defer></script>
     </body>
 </html>

@@ -19,7 +19,7 @@
                 <li><a href = "index.html">Home</a></li>
                 <li><a href = "dashboard.html">Dashboard</a></li>
                 <li><a class = "active" href = "settings.html">Settings</a></li>
-                <li class = "right"><a href = "login.html">Login</a></li>
+                <li class = "right"><a href = "login.html">Loading...</a></li>
             </ul>
         </header>
         <main>
@@ -44,10 +44,37 @@
                     <li><button id = "enable-motion" class = "motion-btn">Enabled</button></li>
                     <li><button id = "disable-motion" class = "motion-btn">Disabled</button></li>
                 </ul>
+                <h3>Transparency</h3>
+                <p>Disable to reduce transparency effects.</p>
+            </div>
+            <div class = "content">
+                <div class = "heading" id = "account-section">
+                    <h2>Account</h2>
+                </div>
+                <h3>Authentication</h3>
+                <div class = hide-when-logged-in>
+                    <p>You are not logged in. Log in or sign up <a href = "login.html"> here.</a></p>
+                </div>
+                <div class = "show-when-logged-in">
+                    <p>You are currently logged in as <span id = "user-email-span"></span></p>
+                    <button id = "logout-button" class = "settings-button">Log Out</button>
+                    <h3>Account Management</h3>
+                    <p>Use the below actions to manage your account. Be careful when deleting an account as this is permanent and you will lose your data.</p>
+                    <button id = "change-password-button" class = "settings-button">Change password</button>
+                    <button id = "delete-account-button" class = "settings-button danger-button">Delete account</button>
+                </div>
+            </div>
+            <div class = "content">
+                <div class = "heading"?>
+                    <h2>Privacy</h2>
+                </div>
+                <h3>Your Data</h3>
+                <p>Here at QuietIot, we care about your data. QuietIoT employs the Firebase Real-time Database and Authentication services to provide functionality and session handling. These along with site settings require your browser to store non-sensitive data via cookies and local storage. No data is used or stored for cross-platform tracking or advertising. All account information (such emails and passwords) is stored securely on Firebase.</p>
             </div>
         </main>
         <footer>
             <p>This site is on <a href = "https://github.com/coronelGuasap9809/quietiot" target = "_blank">GitHub</a></p>
         </footer>
+        <script type="module" src="./assets/scripts/firebase_auth.js" defer></script>
     </body>
 </html>

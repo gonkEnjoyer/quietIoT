@@ -19,7 +19,7 @@
                 <li><a href = "index.html">Home</a></li>
                 <li><a class = "active" href = "dashboard.html">Dashboard</a></li>
                 <li><a href = "settings.html">Settings</a></li>
-                <li class = "right"><a href = "login.html">Login</a></li>
+                <li class = "right"><a href = "login.html">Loading...</a></li>
             </ul>
         </header>
         <main>
@@ -28,10 +28,10 @@
                     <h2>Dashboard</h2>
                 </div>
                 <div class = dashboard_contents>
-                    <input type = "number" id = "time-input" placeholder = "time">
-                    <input type = "text" id = "user-input" placeholder = "user UID">
-                    <input type = "text" id = "device-input" placeholder = "device ID">
-                    <button type = "submit" id = "test-button">Submit</button>
+                    <form>
+                        <input type = "number" id = "time-input" placeholder = "time">
+                        <button type = "submit" id = "test-button">Submit</button>
+                    </form>
                     <h3 type = "text" id = "returned-text"></h3>
                 </div>
             </div>
@@ -39,6 +39,8 @@
         <footer>
             <p>This site is on <a href = "https://github.com/coronelGuasap9809/quietiot" target = "_blank">GitHub</a></p>
         </footer>
+        <script type="module" src="./assets/scripts/firebase_auth.js" defer></script>
         <script type="module" src = "./assets/scripts/firebase_rtdb.js"></script>
+        <script type="module" src = "./assets/scripts/dashboard.js"></script>
     </body>
 </html>
