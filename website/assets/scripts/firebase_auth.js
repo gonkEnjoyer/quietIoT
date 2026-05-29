@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthState
 const loginForm = document.getElementById("login-form");
 const signupForm = document.getElementById("signup-form");
 const logoutBtn = document.getElementById("logout-button");
+const userEmailSpan = document.getElementById("user-email-span");
 
 if (loginForm) {
     console.log("login form found");
@@ -16,12 +17,12 @@ if (loginForm) {
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            alert("Logged in as " + userCredential.user.email);
+            //alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
             window.location.href = "./dashboard.html";
         } catch (error) {
-            alert("Failed to log in. Check your password or whether the referenced account exists.");
+            alert("Failed to log in. Check your password or whether the referenced account exists." + "\nError message:\n" + error.message);
             console.error("Login failed:", error.code, error.message);
         }
     });
@@ -74,9 +75,9 @@ if (logoutBtn) {
         try {
             signOut(auth);
 
-            alert("Successfully logged out");
-            console.log("Successfully logged out");
+            window.location.reload();
 
+            console.log("Successfully logged out");
         } catch (error) {
             console.error("Logout failed:", error.code, error.message);
         }
@@ -86,6 +87,10 @@ if (logoutBtn) {
 onAuthStateChanged(auth, (user) => {
     if (user) {
         console.log("Logged in as:", user.email, user.uid);
+        document.documentElement.classList.add("logged-in");
+        if (userEmailSpan){
+            userEmailSpan.textContent = '"'+ user.email + '"';
+        }
     } else {
         if (window.location.pathname.endsWith("dashboard.html")) {
             alert("User is signed out. Please log in.")

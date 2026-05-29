@@ -112,7 +112,7 @@ button{
     margin: 5px;
     background-color: var(--tertiary-accent);
     border: none;
-    border-radius: inherit;
+    border-radius: 0.3rem;
     padding: 5px;
     width: auto;
     font-size: 1rem;
@@ -263,4 +263,38 @@ button:hover{
 
 .disable-motion:hover{
     transform: scale(100%);
+}
+
+.hide-when-logged-in{
+    margin: none;
+    padding: none;
+}
+
+.logged-in .hide-when-logged-in{
+    display: none;
+}
+
+.show-when-logged-in{
+    display: none;
+    margin: none;
+    padding: none;
+}
+
+.logged-in .show-when-logged-in{
+    display: unset;
+}
+
+.settings-button{
+    display: flex;
+    justify-content: center;
+    width: 200px;
+    margin: 5px auto;
+}
+
+.danger-button{
+    background-color: red;
+}
+
+.danger-button:hover{
+    background-color: lightcoral;
 }

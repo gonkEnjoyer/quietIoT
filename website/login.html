@@ -27,15 +27,21 @@
                 <div class = "heading">
                     <h2>Login</h2>
                 </div>
-                <form id="login-form" method="post" name="login-form">
-                    <label for = "email-input">Email</label>
-                    <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
-                    <label for = "password-input">Password</label>
-                    <input type = "password" name = "password-input" id = "password-input" placeholder = "Your password" required/>
-                    <!--<label for = "toggle">Show password<input type = "checkbox" id = "visibilityToggle" name = "toggle" onclick = "showPassword()"></label>!-->
-                    <button type = "submit">Log in &#8227</button>
-                </form>
-                <p class = "signup-prompt">Don't have an account? <a href = "./signup.html">Sign up here.</a></p>
+                <div class = "hide-when-logged-in">
+                    <form id="login-form" method="post" name="login-form">
+                        <label for = "email-input">Email</label>
+                        <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
+                        <label for = "password-input">Password</label>
+                        <input type = "password" name = "password-input" id = "password-input" placeholder = "Your password" required/>
+                        <button type = "submit">Log in &#8227</button>
+                    </form>
+                    <p class = "signup-prompt">Don't have an account? <a href = "./signup.html">Sign up here.</a></p>
+                </div>
+                <div class = "show-when-logged-in">
+                    <p>You are already logged in.</p>
+                    <button id = "logout-button" class = "settings-button">Log Out</button>
+                    <p>Manage your account settings <a href = "./settings.html#account-section">here</a> or view your device <a href = "./dashboard.html">dashboard</a>.</p>
+                </div>
             </div>
         </main>
         <footer>
