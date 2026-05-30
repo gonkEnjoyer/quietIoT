@@ -1,15 +1,49 @@
-import { db } from "./firebase_init.js";
+import { database } from "./firebase_init.js";
+import { ref, onValue, off } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js"
+import { subscribeToAuthChanges } from "./firebase_auth.js";
 
-import {getDatabase, get, ref, child} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js"
+let currentRTDBUnsubscribe = null;
 
-var timeInput = document.getElementById("time-input");
-var userInput = document.getElementById("user-input");
-var deviceInput = document.getElementById("device-input");
-var submitBtn = document.getElementById("test-button");
-var returnedText = document.getElementById("returned-text");
+function setUpUserRTDBListener(uid) {
+    if (currentRTDBUnsubscribe) {
+        currentRTDBUnsubscribe();
+        console.log("Detached previous RTDB listener");
+    }
 
-function getData() {
-  returnedText.textContent = String("users/" + userInput.value + "/devices/" + deviceInput.value + "/data/" + timeInput.value);
+    console.log(`Setting up RTDB listener for user: ${uid}`);
+    const userRef = ref(database, `users/${uid}`);
+
+    currentRTDBUnsubscribe = onValue(userRef, (snapshot) => {
+        const userData = snapshot.val();
+        console.log("RTDB user data for", uid, ":", userData);
+        
+        if (userData && userData.devices) {
+            console.log("Processing IoT device data for " + userData)
+            document.getElementById("dumpField").textContent = JSON.stringify(userData, null, 2);
+
+        } else {
+            console.log("No IoT devices found for this user.")
+        }
+    });
 }
 
-submitBtn.addEventListener("click", getData);
+function detachUserRTDBListener() {
+    if (currentRTDBUnsubscribe) {
+        currentRTDBUnsubscribe();
+        currentRTDBUnsubscribe = null; // Clear the reference
+        console.log("RTDB listener detached because user logged out.");
+    }
+}
+
+subscribeToAuthChanges((user) => {
+    if (user) {
+        // User is logged in, set up the RTDB listener for their data
+        setUpUserRTDBListener(user.uid);
+    } else {
+        // User is logged out, detach any active RTDB listener
+        detachUserRTDBListener();
+        console.log("No user signed in, RTDB listener removed.");
+        // HERE: Clear any user-specific data from your UI/state
+        // For example: clearUserDataFromUI();
+    }
+});
