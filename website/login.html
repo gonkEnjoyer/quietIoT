@@ -34,13 +34,13 @@
                         <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
                         <label for = "password-input">Password</label>
                         <input type = "password" name = "password-input" id = "password-input" placeholder = "Your password" required/>
-                        <button type = "submit">Log in &#8227</button>
+                        <button type = "submit"><span class = "button-text">Log in &#8227</span><img class = "loading-icon button-loading-icon hidden" id = "button-loading-icon" src = "assets/images/icons/loading_icon.png"></button>
                     </form>
                     <p class = "signup-prompt">Don't have an account? <a href = "./signup.html">Sign up here.</a></p>
                 </div>
                 <div class = "show-when-logged-in">
                     <p>You are already logged in.</p>
-                    <button id = "logout-button" class = "settings-button">Log Out</button>
+                    <button id = "logout-button" class = "settings-button">Log out<img class = "icon" src = "assets/images/icons/logout.svg"></button>
                     <p>Manage your account settings <a href = "./settings.html#account-section">here</a> or view your device <a href = "./dashboard.html">dashboard</a>.</p>
                 </div>
             </div>

@@ -59,14 +59,14 @@ const disableMotion = () => {
 console.log(theme);
 console.log(motionSetting);
 
-/* Read localStorage motion data */
+// Read localStorage motion data
 if (motionSetting === "disabled") {
     disableMotion()
 } else {
     enableMotion()
 }
 
-/* Read localStorage theme data */
+// Read localStorage theme data
 if (theme === "light") {
     enableLightmode()
 } else if (theme === "dark") {
