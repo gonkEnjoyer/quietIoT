@@ -31,6 +31,10 @@
         padding: 10px;
     }
 
+    .login{
+        max-width: 450px;
+    }
+
     main{
         display: flex;
         flex-direction: column;

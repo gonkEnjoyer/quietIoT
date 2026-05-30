@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="color-scheme" content="light dark">
         <link href = "./assets/main.css" rel = "stylesheet">
+        <link href = "./assets/mobile.css" rel = "stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -27,16 +28,23 @@
                 <div class = "heading">
                     <h2>Sign Up</h2>
                 </div>
-                <form id = "signup-form" method = "post" name = "signup-form">
-                    <label for = "email-input">Email</label>
-                    <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
-                    <label for = "password-input">Password</label>
-                    <input type = "password" name = "password-input" id = "password-input" placeholder = "Must be at least 8 characters" required/>
-                    <label for = "password-input">Confirm Password</label>
-                    <input type = "password" name = "password-confirm" id = "password-confirm" placeholder = "Re-enter your password" required/>
-                    <!--<label for = "toggle">Show password<input type = "checkbox" id = "visibilityToggle" name = "toggle" onclick = "showPassword()"></label>!-->
-                    <button type = "submit">Sign up &#8227</button>
-                </form>
+                <div class = "hide-when-logged-in">
+                    <form id = "signup-form" method = "post" name = "signup-form">
+                        <label for = "email-input">Email</label>
+                        <input type = "email" name = "email-input" placeholder = "your.email@example.com" required/>
+                        <label for = "password-input">Password</label>
+                        <input type = "password" name = "password-input" id = "password-input" placeholder = "Must be at least 8 characters" required/>
+                        <label for = "password-input">Confirm Password</label>
+                        <input type = "password" name = "password-confirm" id = "password-confirm" placeholder = "Re-enter your password" required/>
+                        <!--<label for = "toggle">Show password<input type = "checkbox" id = "visibilityToggle" name = "toggle" onclick = "showPassword()"></label>!-->
+                        <button type = "submit"><span class = "button-text">Sign up &#8227</span><img class = "loading-icon button-loading-icon hidden" id = "button-loading-icon" src = "assets/images/icons/loading_icon.png"></button>
+                    </form>
+                </div>
+                <div class = "show-when-logged-in">
+                    <p>You are already signed up. Log out to create a new account.</p>
+                    <button id = "logout-button" class = "settings-button">Log out<img class = "icon" src = "assets/images/icons/logout.svg"></button>
+                    <p>Manage your account settings <a href = "./settings.html#account-section">here</a>.</p>
+                </div>
             </div>
         </main>
         <footer>

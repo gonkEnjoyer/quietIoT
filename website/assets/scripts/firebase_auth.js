@@ -12,23 +12,30 @@ const loginPageLink = document.querySelector(".right>a");
 if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        console.log("LOGIN SUBMITTED");
-        const email = loginForm.querySelector("input[name='email-input']").value;
 
+        console.log("Login submitted");
+
+        const button = loginForm.querySelector("button");
+        const loadingIcon = button.querySelector(".button-loading-icon");
+        const text = button.querySelector(".button-text")
+
+        if (loadingIcon) {
+            loadingIcon.classList.remove("hidden");
+        }
+
+        const email = loginForm.querySelector("input[name='email-input']").value;
         const password = loginForm.querySelector("input[name='password-input']").value;
 
         try {
-            const button = loginForm.querySelector("button");
-            button.textContent = "...";
+            text.textContent = ""
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            //alert("Logged in as " + userCredential.user.email);
             console.log("Signed in as", userCredential.user.email);
 
             //window.location.href = "./dashboard.html";
         } catch (error) {
             alert("Failed to log in. \nError message: " + error.message);
-            loginForm.reset();
             console.error("Login failed:", error.code, error.message);
+            window.location.reload();
         }
     });
 }
@@ -36,21 +43,27 @@ if (loginForm) {
 if (signupForm) {
     signupForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        console.log("SIGNUP SUBMITTED");
+
+        console.log("Signup submitted");
+
+        const button = signupForm.querySelector("button");
+        const loadingIcon = button.querySelector(".button-loading-icon");
+        const text = button.querySelector(".button-text")
+
+        if (loadingIcon) {
+            loadingIcon.classList.remove("hidden");
+        }
+
         const email = signupForm.querySelector("input[name='email-input']").value;
-
         const password = signupForm.querySelector("input[name='password-input']").value;
-
         const confirmPassword = signupForm.querySelector("#password-confirm").value;
 
-        // Password match validation
         if (password !== confirmPassword) {
             alert("Error: passwords must match");
             console.error("Passwords do not match");
             return;
         }
 
-        // Minimum length validation
         if (password.length < 8) {
             alert(" Error: password must be at least 8 characters");
             console.error("Password must be at least 8 characters");
@@ -58,10 +71,8 @@ if (signupForm) {
         }
 
         try {
-            const button = signupForm.querySelector("button");
-            button.textContent = "...";
+            text.textContent = ""
             button.disabled = true;
-
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             
             alert("Account created: " + userCredential.user.email);
@@ -120,6 +131,7 @@ onAuthStateChanged(auth, (user) => {
                     confirm("Are you sure you wish to delete your account? You will lose all account and sensor data permanently.")
                     deleteUser(user);
                     console.log("User deleted");
+                    signOut(auth);
                     window.location.reload();
                 } catch (error) {
                     console.error("Logout failed:", error.code, error.message);
@@ -127,11 +139,10 @@ onAuthStateChanged(auth, (user) => {
             });
         }
 
-        window.markAuthReady?.();
+        window.markAuthReady?.(); // Sets the flag which indicates all UI changes due to auth state checking are ready (to remove loading screen)
     } else {
         if (window.location.pathname.endsWith("dashboard.html")) {
-            alert("User is signed out. Please log in.")
-            console.log("User is signed out");
+            alert("User is signed out. Please log in or create an account.")
             window.location.href = "login.html";
         }
 
