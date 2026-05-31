@@ -28,13 +28,13 @@ function getDeviceStatus(deviceLastOnline, now) {
     }
 }
 
-function getStatusColor(deviceStatus) {
+function getStatusClass(deviceStatus) {
     if (deviceStatus === "Online") {
-        return "LimeGreen";
+        return "online-status";
     } else if (!deviceStatus.includes("ago")) {
-        return "Silver";
+        return "unknown-status";
     } else {
-        return "Red";
+        return "offline-status";
     }
 }
 
@@ -53,15 +53,16 @@ function populateDeviceList(devices, now) {
         const deviceLastOnline = deviceData.status?.lastOnline;
         const deviceStatus = getDeviceStatus(deviceLastOnline, now);
 
-        console.log(deviceName, deviceLastOnline, now);
+        //console.log(deviceName, deviceLastOnline, now);
 
         const deviceElement = document.createElement("li");
+        deviceElement.classList.add("device-element")
         deviceElement.innerHTML = `
-        <span style = "color: ${getStatusColor(deviceStatus)};">&#9673;</span>
+        <span class = "${getStatusClass(deviceStatus)}">&#9673;</span>
         ${deviceName}
         <span style = "font-size: 0.7rem; opacity: 60%;">${deviceStatus}</span>
         <br>
-        <span class = "advanced hidden" style = "font-size: 0.5rem; opacity: 60%">ID: ${deviceId}</span>
+        <span style = "font-size: 0.5rem; opacity: 60%">ID: ${deviceId}</span>
         `;
         deviceListElement.appendChild(deviceElement);
     });
@@ -70,7 +71,6 @@ function populateDeviceList(devices, now) {
 subscribeToDataUpdates((data) => {
     if (data) {
         const now = Math.round(Date.now()/1000);
-        console.log(now);
         populateDeviceList(data.devices, now);
 
         const dataDumpField = document.getElementById("dumpField");
@@ -78,7 +78,6 @@ subscribeToDataUpdates((data) => {
         window.markDashboardReady?.();
     } else {
         console.log("No data to display");
-        alert("No data to display.");
         window.markDashboardReady?.();
     }
 });

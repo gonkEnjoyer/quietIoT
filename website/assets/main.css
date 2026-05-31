@@ -9,6 +9,7 @@
 
 
     --text-color: light-dark(black, white);
+    --minor-text-color: light-dark(#cccccc, #303131);
 
     --primary-bg: light-dark(white, #1e1d1d);
     --secondary-bg: light-dark(#e6e6e6, #252727);
@@ -136,7 +137,16 @@ pre {
     margin: 6px;
     padding: 10px;
     overflow: scroll;
-    max-height: 200px;
+}
+
+ol{
+    color: var(--minor-text-color);
+    margin-top: 0;
+    font-size: 0.8rem;
+}
+
+ol li:not(:first-child){ 
+    margin-top: 10px
 }
 
 /* Navbar */
@@ -360,11 +370,12 @@ pre {
 .dashboard-content{
     display: grid;
     grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto;
 }
 
-.content:has(.dashboard-content){
+/*.content:has(.dashboard-content){
     max-width: 1200px;
-}
+}*/
 
 
 .dashboard-card{
@@ -377,14 +388,27 @@ pre {
     list-style-type: none;
     padding: 0;
     margin: 5px;
-    overflow-y: scroll;
 }
 
 .device-list li{
-    border-bottom: solid;
-    border-color: var(--secondary-bg);
     padding: 5px;
     border-width: 2px;
+}
+
+.device-element{
+    border-bottom: solid;
+    border-color: var(--secondary-bg);
     margin: 0 10px;
 }
 
+.online-status{
+    color: lime;
+}
+
+.offline-status{
+    color: red;
+}
+
+.unknown-status{
+    color: var(--minor-text-color);
+}
