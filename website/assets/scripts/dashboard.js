@@ -30,9 +30,11 @@ function getDeviceStatus(deviceLastOnline, now) {
 
 function getStatusColor(deviceStatus) {
     if (deviceStatus === "Online") {
-        return "ForestGreen";
+        return "LimeGreen";
+    } else if (!deviceStatus.includes("ago")) {
+        return "Silver";
     } else {
-        return "FireBrick";
+        return "Red";
     }
 }
 
@@ -72,8 +74,11 @@ subscribeToDataUpdates((data) => {
         populateDeviceList(data.devices, now);
 
         const dataDumpField = document.getElementById("dumpField");
-        if (dataDumpField)dataDumpField.textContent = JSON.stringify(data, null, 2);
+        //if (dataDumpField)dataDumpField.textContent = JSON.stringify(data, null, 2);
+        window.markDashboardReady?.();
     } else {
-        console.log("No data to display")
+        console.log("No data to display");
+        alert("No data to display.");
+        window.markDashboardReady?.();
     }
 });

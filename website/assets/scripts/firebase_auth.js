@@ -168,7 +168,7 @@ onAuthStateChanged(auth, (user) => {
             };
         }
 
-        window.markAuthReady?.(); // Sets the flag which indicates all UI changes due to auth state checking are ready (to remove loading screen)
+        window.markAuthReady?.();
     } else {
         currentUser = null;
 
