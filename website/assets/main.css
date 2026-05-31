@@ -132,9 +132,11 @@ pre {
     white-space: pre-wrap;
     word-wrap: break-word;
     background-color: var(--primary-bg);
-    border-radius: 10px;
+    border-radius: 5px;
     margin: 6px;
     padding: 10px;
+    overflow: scroll;
+    max-height: 200px;
 }
 
 /* Navbar */
@@ -352,5 +354,37 @@ pre {
 
 .darkmode .icon .invert-icon{
     filter: invert();
+}
+
+/* Dashboard */
+.dashboard-content{
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.content:has(.dashboard-content){
+    max-width: 1200px;
+}
+
+
+.dashboard-card{
+    background-color: var(--tertiary-bg);
+    border-radius: 6px;
+    margin: 5px;
+}
+
+.device-list{
+    list-style-type: none;
+    padding: 0;
+    margin: 5px;
+    overflow-y: scroll;
+}
+
+.device-list li{
+    border-bottom: solid;
+    border-color: var(--secondary-bg);
+    padding: 5px;
+    border-width: 2px;
+    margin: 0 10px;
 }
 

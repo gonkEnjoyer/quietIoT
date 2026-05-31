@@ -4,6 +4,23 @@ import { subscribeToAuthChanges } from "./firebase_auth.js";
 
 let currentRTDBUnsubscribe = null;
 
+const dataUpdateListeners = [];
+
+export function subscribeToDataUpdates(callback) {
+    dataUpdateListeners.push(callback);
+
+    return () => {
+        const index = dataUpdateListeners.indexOf(callback);
+        if (index > -1){
+            dataUpdateListenersListeners.splice(index, 1);
+        }
+    }
+}
+
+function notifyDataUpdateSubscribers(data) {
+    dataUpdateListeners.forEach(listener => listener(data));
+}
+
 function setUpUserRTDBListener(uid) {
     if (currentRTDBUnsubscribe) {
         currentRTDBUnsubscribe();
@@ -18,11 +35,12 @@ function setUpUserRTDBListener(uid) {
         console.log("RTDB user data for", uid, ":", userData);
         
         if (userData && userData.devices) {
-            console.log("Processing IoT device data for " + userData)
-            document.getElementById("dumpField").textContent = JSON.stringify(userData, null, 2);
-
+            //console.log("Processing IoT device data for " + uid)
+            //document.getElementById("dumpField").textContent = JSON.stringify(userData, null, 2);
+            notifyDataUpdateSubscribers(userData);
         } else {
             console.log("No IoT devices found for this user.")
+            notifyDataUpdateSubscribers(null);
         }
     });
 }

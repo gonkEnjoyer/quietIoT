@@ -4,7 +4,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthState
 let currentUser = null;
 
 /*export function getCurrentUser(){
-    return CurrentUser;
+    return currentUser;
 }*/
 
 const authStateListeners = [];
@@ -42,9 +42,9 @@ if (loginForm) {
         try {
             text.textContent = ""
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log("Signed in as", userCredential.user.email);
+            console.log("Logged in as", userCredential.user.email);
 
-            //window.location.href = "./dashboard.html";
+            window.location.href = "./dashboard.html";
         } catch (error) {
             alert("Failed to log in. \nError message: " + error.message);
             console.error("Login failed:", error.code, error.message);
