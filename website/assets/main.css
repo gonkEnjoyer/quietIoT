@@ -392,6 +392,16 @@ ol li:not(:first-child){
     padding: 5px;
 }
 
+.dashboard-chart-card{
+    min-width: 20rem;
+}
+
+.chart-frame{
+    height: 18rem;
+    min-height: 260px;
+    padding: 0 5px 5px;
+}
+
 .device-list{
     list-style-type: none;
     padding: 0;

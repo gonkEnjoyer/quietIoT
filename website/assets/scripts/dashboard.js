@@ -5,11 +5,35 @@ import {
     CategoryScale,
     BarElement,
     BarController,
+    LineController,
+    LineElement,
+    PointElement,
     Tooltip,
     Legend
 } from "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm";
 
-Chart.register(LinearScale, CategoryScale, BarElement, BarController, Tooltip, Legend);
+Chart.register(
+    LinearScale,
+    CategoryScale,
+    BarElement,
+    BarController,
+    LineController,
+    LineElement,
+    PointElement,
+    Tooltip,
+    Legend
+);
+
+const chartColors = [
+    "#4470ad",
+    "#d75f5f",
+    "#3f9c72",
+    "#d39532",
+    "#8a6fd1",
+    "#2f9ca3",
+    "#c25f99",
+    "#6c8f36"
+];
 
 function getDeviceStatus(deviceLastOnline, now) {
     if (!deviceLastOnline || deviceLastOnline === 0) {
@@ -123,6 +147,7 @@ function populateReadingsList(devices, now) {
 // Declare a variable to hold the chart instance outside the function
 // so it can be accessed and updated across data changes.
 let myBarChartInstance = null;
+let hourlyNoiseChartInstance = null;
 
 function makeBarChart(devices, now) {
     const chartLabels = [];
@@ -233,6 +258,176 @@ function makeBarChart(devices, now) {
     }
 }
 
+function getHourlyBucketStarts(now, hourCount) {
+    const currentHourStart = Math.floor(now / 3600) * 3600;
+
+    return Array.from(
+        { length: hourCount },
+        (_, index) => currentHourStart - ((hourCount - 1 - index) * 3600)
+    );
+}
+
+function formatHourLabel(timestamp) {
+    return new Date(timestamp * 1000).toLocaleTimeString([], {
+        hour: "numeric"
+    });
+}
+
+function getReadingNumber(reading) {
+    const readingNumber = Number(reading);
+    return Number.isFinite(readingNumber) ? readingNumber : null;
+}
+
+function getChartTextColor() {
+    return getComputedStyle(document.body).color;
+}
+
+function getHourlyAverages(readings, hourStarts) {
+    const bucketsByHour = new Map(
+        hourStarts.map(hourStart => [hourStart, { total: 0, count: 0 }])
+    );
+    const firstHourStart = hourStarts[0];
+    const finalHourEnd = hourStarts[hourStarts.length - 1] + 3600;
+
+    Object.entries(readings || {}).forEach(([timestampStr, reading]) => {
+        const timestamp = Number(timestampStr);
+        const readingNumber = getReadingNumber(reading);
+
+        if (!Number.isFinite(timestamp) || readingNumber === null) {
+            return;
+        }
+
+        if (timestamp < firstHourStart || timestamp >= finalHourEnd) {
+            return;
+        }
+
+        const hourStart = Math.floor(timestamp / 3600) * 3600;
+        const bucket = bucketsByHour.get(hourStart);
+
+        if (bucket) {
+            bucket.total += readingNumber;
+            bucket.count++;
+        }
+    });
+
+    return hourStarts.map(hourStart => {
+        const bucket = bucketsByHour.get(hourStart);
+        return bucket.count > 0 ? Number((bucket.total / bucket.count).toFixed(1)) : null;
+    });
+}
+
+function makeHourlyNoiseLineChart(devices, now) {
+    const ctx = document.getElementById("line-chart");
+    if (!ctx) {
+        console.error("Canvas element with ID 'line-chart' not found for Chart.js.");
+        return;
+    }
+
+    const hourStarts = getHourlyBucketStarts(now, 12);
+    const chartLabels = hourStarts.map(formatHourLabel);
+    const textColor = getChartTextColor();
+
+    const datasets = Object.keys(devices || {}).map((deviceId, index) => {
+        const deviceData = devices[deviceId];
+        const deviceName = deviceData.metadata?.deviceName || `Device ${deviceId}`;
+        const color = chartColors[index % chartColors.length];
+
+        return {
+            label: deviceName,
+            data: getHourlyAverages(deviceData.data, hourStarts),
+            borderColor: color,
+            backgroundColor: `${color}33`,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            spanGaps: true
+        };
+    });
+
+    if (hourlyNoiseChartInstance) {
+        hourlyNoiseChartInstance.data.labels = chartLabels;
+        hourlyNoiseChartInstance.data.datasets = datasets;
+        hourlyNoiseChartInstance.options.scales.x.title.color = textColor;
+        hourlyNoiseChartInstance.options.scales.x.ticks.color = textColor;
+        hourlyNoiseChartInstance.options.scales.y.title.color = textColor;
+        hourlyNoiseChartInstance.options.scales.y.ticks.color = textColor;
+        hourlyNoiseChartInstance.options.plugins.legend.labels.color = textColor;
+        hourlyNoiseChartInstance.update();
+        return;
+    }
+
+    hourlyNoiseChartInstance = new Chart(ctx.getContext("2d"), {
+        type: "line",
+        data: {
+            labels: chartLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 400
+            },
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: "linear",
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Average Noise (dBA)",
+                        color: textColor
+                    },
+                    ticks: {
+                        precision: 0,
+                        color: textColor
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.2)"
+                    }
+                },
+                x: {
+                    type: "category",
+                    title: {
+                        display: true,
+                        text: "Hour",
+                        color: textColor
+                    },
+                    ticks: {
+                        color: textColor
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.16)"
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const value = context.parsed.y;
+                            if (value === null) {
+                                return `${context.dataset.label}: no readings`;
+                            }
+                            return `${context.dataset.label}: ${value} dBA`;
+                        }
+                    }
+                },
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });
+}
+
 
 subscribeToDataUpdates((data) => {
     if (data) {
@@ -240,6 +435,7 @@ subscribeToDataUpdates((data) => {
         populateDeviceList(data.devices, now);
         populateReadingsList(data.devices, now);
         makeBarChart(data.devices, now);
+        makeHourlyNoiseLineChart(data.devices, now);
 
         const dataDumpField = document.getElementById("dumpField");
         //if (dataDumpField)dataDumpField.textContent = JSON.stringify(data, null, 2);
