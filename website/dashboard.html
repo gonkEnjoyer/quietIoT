@@ -7,7 +7,7 @@
         <link href = "./assets/mobile.css" rel = "stylesheet">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
         <link rel="icon" type="image/x-icon" href="./assets/images/icons/favicon.ico">
         <script type = "text/javascript" src = "./assets/scripts/ui.js" defer></script>
         <title>QuietIoT - Dashboard</title>
@@ -28,12 +28,41 @@
                 <div class = "heading">
                     <h2>Dashboard</h2>
                 </div>
-                <div class = dashboard_contents>
-                    <form>
-                        <input type = "number" id = "time-input" placeholder = "time">
-                        <button type = "submit" id = "test-button">Submit</button>
-                    </form>
-                    <h3 type = "text" id = "returned-text"></h3>
+                <div class = dashboard-content>
+                    <div class = "dashboard-card">
+                        <h3>Devices</h3>
+                        <ul class = "device-list" id = "device-list">
+                            <li class = "device-element">Your devices will show up here</li>
+                            <li>Follow the instructions on the <a href = "./index.html">home</a> page to set up a device for use.</li>
+                        </ul>
+                    </div>
+                    <div class = "dashboard-card">
+                        <h3>Live readings</h3>
+                        <ul class = "readings-list" id = "readings-list">
+                            <li class = "device-reading">2</li>
+                            <li class = "device-reading">35</li>
+                        </ul>
+                    </div>
+                    <!--<div class = "dashboard-card">
+                        <h3>Raw Data</h3>
+                        <pre><code id = dumpField>
+                        </code></pre>
+                    </div>-->
+                    <div class = "dashboard-card">
+                        <h3>Hour Average</h3>
+                        <canvas id = "noiseChart"></canvas>
+                    </div>
+                    <div class = "dashboard-card">
+                    </div>
+                    <div class = "dashboard-card">
+                        <h3>Average last 24 hours</h3>
+                        <canvas id = "line-chart">
+
+                        </canvas>
+                    </div>
+                    <div class = "dashboard-card">
+                        <h3>By week</h3>
+                    </div>
                 </div>
             </div>
         </main>
