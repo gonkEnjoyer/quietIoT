@@ -42,6 +42,7 @@ function populateDeviceList(devices, now) {
     const deviceListElement = document.getElementById("device-list");
 
     deviceListElement.innerHTML = "";
+
     if (!devices || Object.keys(devices).length === 0){
         console.log("No device data to populate");
     }
@@ -60,6 +61,7 @@ function populateDeviceList(devices, now) {
         deviceElement.innerHTML = `
         <span class = "${getStatusClass(deviceStatus)}">&#9673;</span>
         ${deviceName}
+        <br>
         <span style = "font-size: 0.7rem; opacity: 60%;">${deviceStatus}</span>
         <br>
         <span style = "font-size: 0.5rem; opacity: 60%">ID: ${deviceId}</span>
@@ -68,10 +70,56 @@ function populateDeviceList(devices, now) {
     });
 }
 
+function populateReadingsList(devices, now) {
+    const readingsListElement = document.getElementById("readings-list");
+
+    readingsListElement.innerHTML = "";
+
+    if (!devices || Object.keys(devices).length === 0){
+        console.log("No devices to populate readings");
+    }
+
+    Object.keys(devices).forEach(deviceId => {
+        const deviceData = devices[deviceId];
+
+        const deviceName = deviceData.metadata?.deviceName;
+        const deviceLastOnline = deviceData.status?.lastOnline;
+        const deviceLocation = deviceData.metadata?.deviceLocation;
+        const deviceStatus = getDeviceStatus(deviceLastOnline, now);
+
+        const readingElement = document.createElement("li");
+        readingElement.classList.add("device-reading");
+
+        if (deviceStatus === "Online") {
+            console.log(deviceLastOnline)
+            const reading = deviceData.data[deviceLastOnline];
+            readingElement.innerHTML = `
+            ${deviceLocation}
+            <br>
+            <span style = "font-size: 0.7rem; opacity: 60%;">${deviceName}</span>
+            <br>
+            <span class = "noise-reading-text">${reading}</span>dBA
+            `
+        } else {
+            readingElement.innerHTML = `
+            ${deviceLocation}
+            <br>
+            <span style = "font-size: 0.7rem; opacity: 60%;">${deviceName}</span>
+            <br>
+            <br>
+            Device is offline
+            `
+        }
+
+        readingsListElement.appendChild(readingElement);
+    });
+}
+
 subscribeToDataUpdates((data) => {
     if (data) {
         const now = Math.round(Date.now()/1000);
         populateDeviceList(data.devices, now);
+        populateReadingsList(data.devices, now);
 
         const dataDumpField = document.getElementById("dumpField");
         //if (dataDumpField)dataDumpField.textContent = JSON.stringify(data, null, 2);

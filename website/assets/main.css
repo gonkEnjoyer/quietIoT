@@ -9,7 +9,7 @@
 
 
     --text-color: light-dark(black, white);
-    --minor-text-color: light-dark(#cccccc, #303131);
+    --minor-text-color: light-dark(#303131, #cccccc);
 
     --primary-bg: light-dark(white, #1e1d1d);
     --secondary-bg: light-dark(#e6e6e6, #252727);
@@ -22,6 +22,7 @@
 
 .lightmode{
     --text-color: black;
+    --minor-text-color: #303131;
 
     --primary-bg: white;
     --secondary-bg: #e6e6e6;
@@ -33,6 +34,7 @@
 
 .darkmode{
     --text-color: white;
+    --minor-text-color: #cccccc;
 
     --primary-bg: #1e1d1d;
     --secondary-bg: #252727;
@@ -214,6 +216,11 @@ ol li:not(:first-child){
     transition: transform 0.3s;
 }
 
+.content:has(.dashboard-content){
+    max-width: unset;
+    margin: 20px 200px;
+}
+
 .content:hover{
     transform: scale(101%);
 }
@@ -271,7 +278,7 @@ ol li:not(:first-child){
     border-radius: 5px;
     color: var(--text-color);
     border: 0;
-    font-size: 1em;
+    font-size: 1rem;
     background-color: var(--secondary-bg);
     transition: background-color 0.3s;
     cursor: pointer;
@@ -369,7 +376,7 @@ ol li:not(:first-child){
 /* Dashboard */
 .dashboard-content{
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 16rem auto auto;
     grid-template-rows: auto auto;
 }
 
@@ -382,6 +389,7 @@ ol li:not(:first-child){
     background-color: var(--tertiary-bg);
     border-radius: 6px;
     margin: 5px;
+    padding: 5px;
 }
 
 .device-list{
@@ -390,15 +398,15 @@ ol li:not(:first-child){
     margin: 5px;
 }
 
-.device-list li{
+.device-element{
+    margin: 0 10px;
     padding: 5px;
-    border-width: 2px;
 }
 
-.device-element{
+.device-element:not(:last-child){
     border-bottom: solid;
     border-color: var(--secondary-bg);
-    margin: 0 10px;
+    border-width: 2px;
 }
 
 .online-status{
@@ -411,4 +419,28 @@ ol li:not(:first-child){
 
 .unknown-status{
     color: var(--minor-text-color);
+}
+
+.readings-list{
+    display: flex;
+    list-style-type: none;
+    padding-left: 0;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.device-reading{
+    padding: 20px;
+    text-align: center;
+}
+
+.device-reading:not(:last-child){
+    border-right: solid;
+    border-color: var(--secondary-bg);
+    border-width: 2px;
+}
+
+.noise-reading-text{
+    font-size: 3rem;
+    font-family: "Source Code Pro";
 }
