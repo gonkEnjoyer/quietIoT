@@ -1,12 +1,37 @@
-@media only screen and (max-width: 650px) {
-    .navBar li img{
-        display: none;
+@media only screen and (max-width: 1200px) {
+    .content:has(.dashboard-content){
+        margin: 20px;
+    }
+
+    .dashboard-content{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .dashboard-chart-card{
+        min-width: 0;
+    }
+
+    .dashboard-wide-card{
+        grid-column: auto;
+    }
+
+    .chart-frame{
+        height: 14rem;
+        min-height: 220px;
+    }
+
+    .readings-list{
+        width: auto;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 }
 
-@media only screen and (max-width: 500px) {
-    html {
-        font-size: 1.5rem;
+@media only screen and (max-width: 650px) {
+    .navBar li img{
+        display: none;
     }
 
     header{

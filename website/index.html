@@ -41,25 +41,48 @@
                     <h2>Setting up a new device</h2>
                 </div>
                 <p>Follow these simple steps to get a QuietIoT device working and connected:</p>
-                <ol>
-                    <li>Plug the device in</li>
-                    <li>Open the config portal:
-                        <ol type = "a">
-                            <li>If the device is new, it will automatically open</li>
-                            <li>If the device has been used, hold down the button before the firmware version appears on-screen</li>
-                        </ol>
-                    </li>
-                    <li>Join the Wi-Fi network shown on the device using a computer or phone</li>
-                    <li>Configure a Wi-Fi network in the "Configure Wi-Fi" page</li>
-                    <li>Enter your QuietIoT credentials in the "Setup" page</li>
-                    <li>Exit the portal or restart the device and you're done!</li>
-                </ol>
+                <div class = "instruction-carousel">
+                    <div class = "carousel-window">
+                        <div class = "carousel-track">
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/plug_img.jpeg">
+                                <p><strong>1.</strong> Plug the device in.</p>
+                            </section>
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/button_img.jpeg">
+                                <p><strong>2.</strong> Open the config portal. New devices open it automatically; otherwise, hold the button before the firmware version appears on-screen.</p>
+                            </section>
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/IP_img.jpeg">
+                                <p><strong>3.</strong> Join the Wi-Fi network shown on the device using a computer or phone.</p>
+                            </section>
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/wifi_img.png">
+                                <p><strong>4.</strong> Configure a Wi-Fi network in the "Configure Wi-Fi" page.</p>
+                            </section>
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/Setup_img.png">
+                                <p><strong>5.</strong> Enter your QuietIoT credentials in the "Setup" page.</p>
+                            </section>
+                            <section class = "carousel-slide">
+                                <img src = "./assets/images/final_img.jpeg">
+                                <p><strong>6.</strong> Exit the portal or restart the device and you're done!</p>
+                            </section>
+                        </div>
+                    </div>
+                    <div class = "carousel-controls">
+                        <button type = "button" class = "carousel-btn" data-carousel-prev aria-label = "Previous instruction">&#8249;</button>
+                        <div class = "carousel-dots" aria-label = "Instruction step"></div>
+                        <button type = "button" class = "carousel-btn" data-carousel-next aria-label = "Next instruction">&#8250;</button>
+                    </div>
+                </div>
             </div>
         </main>
         <footer>
             <p>This site is on <a href = "https://github.com/gonkEnjoyer/quietiot" target = "_blank">GitHub</a></p>
         </footer>
         <script type="module" src="./assets/scripts/firebase_auth.js" defer></script>
+        <script type = "text/javascript" src = "./assets/scripts/carousel.js" defer></script>
         <script type = "text/javascript" src = "./assets/scripts/loading.js" defer></script>
     </body>
 </html>

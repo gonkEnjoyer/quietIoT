@@ -5,11 +5,59 @@ import {
     CategoryScale,
     BarElement,
     BarController,
+    LineController,
+    LineElement,
+    PointElement,
     Tooltip,
     Legend
 } from "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm";
 
-Chart.register(LinearScale, CategoryScale, BarElement, BarController, Tooltip, Legend);
+Chart.register(
+    LinearScale,
+    CategoryScale,
+    BarElement,
+    BarController,
+    LineController,
+    LineElement,
+    PointElement,
+    Tooltip,
+    Legend
+);
+
+const chartColors = [
+    "#4470ad",
+    "#d75f5f",
+    "#3f9c72",
+    "#d39532",
+    "#8a6fd1",
+    "#2f9ca3",
+    "#c25f99",
+    "#6c8f36"
+];
+
+function getDeviceIds(devices) {
+    if (!devices) {
+        return [];
+    }
+
+    const deviceIds = Object.keys(devices);
+    deviceIds.sort();
+    return deviceIds;
+}
+
+function getDeviceColor(index) {
+    return chartColors[index % chartColors.length];
+}
+
+function getTransparentColors(colors) {
+    const transparentColors = [];
+
+    colors.forEach(color => {
+        transparentColors.push(`${color}99`);
+    });
+
+    return transparentColors;
+}
 
 function getDeviceStatus(deviceLastOnline, now) {
     if (!deviceLastOnline || deviceLastOnline === 0) {
@@ -123,14 +171,19 @@ function populateReadingsList(devices, now) {
 // Declare a variable to hold the chart instance outside the function
 // so it can be accessed and updated across data changes.
 let myBarChartInstance = null;
+let hourlyNoiseChartInstance = null;
+let thresholdChartInstance = null;
+let latestDevices = null;
+let latestNow = null;
 
 function makeBarChart(devices, now) {
     const chartLabels = [];
     const chartData = [];
+    const barColors = [];
 
-    const oneHourAgo = now - 3600; // Unix timestamp for one hour ago
+    const oneHourAgo = now - 3600;
 
-    Object.keys(devices).forEach(deviceId => {
+    getDeviceIds(devices).forEach((deviceId, index) => {
         const deviceData = devices[deviceId];
         const deviceName = deviceData.metadata?.deviceName || `Device ${deviceId}`;
         const readings = deviceData.data || {};
@@ -140,16 +193,22 @@ function makeBarChart(devices, now) {
 
         Object.keys(readings).forEach(timestampStr => {
             const timestamp = parseInt(timestampStr, 10);
-            if (timestamp >= oneHourAgo && timestamp <= now) {
-                totalNoise += readings[timestampStr];
+            const readingNumber = getReadingNumber(readings[timestampStr]);
+
+            if (timestamp >= oneHourAgo && timestamp <= now && readingNumber !== null) {
+                totalNoise += readingNumber;
                 readingCount++;
             }
         });
 
-        const averageNoise = readingCount > 0 ? totalNoise / readingCount : 0;
+        let averageNoise = 0;
+        if (readingCount > 0) {
+            averageNoise = totalNoise / readingCount;
+        }
 
         chartLabels.push(deviceName);
         chartData.push(averageNoise);
+        barColors.push(getDeviceColor(index));
     });
 
     const ctx = document.getElementById('noiseChart');
@@ -159,11 +218,18 @@ function makeBarChart(devices, now) {
     }
 
     const chartCtx = ctx.getContext('2d');
+    const textColor = getChartTextColor();
 
     // If the chart instance already exists, update its data
     if (myBarChartInstance) {
         myBarChartInstance.data.labels = chartLabels;
         myBarChartInstance.data.datasets[0].data = chartData;
+        myBarChartInstance.data.datasets[0].backgroundColor = getTransparentColors(barColors);
+        myBarChartInstance.data.datasets[0].borderColor = barColors;
+        myBarChartInstance.options.scales.x.title.color = textColor;
+        myBarChartInstance.options.scales.x.ticks.color = textColor;
+        myBarChartInstance.options.scales.y.title.color = textColor;
+        myBarChartInstance.options.scales.y.ticks.color = textColor;
         myBarChartInstance.update(); // This will animate the changes
     } else {
         // Otherwise, create a new chart instance
@@ -174,8 +240,8 @@ function makeBarChart(devices, now) {
                 datasets: [{
                     label: 'Average Noise (dBA) in Last Hour',
                     data: chartData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: getTransparentColors(barColors),
+                    borderColor: barColors,
                     borderWidth: 1
                 }]
             },
@@ -191,13 +257,13 @@ function makeBarChart(devices, now) {
                         title: {
                             display: true,
                             text: 'Average Noise (dBA)',
-                            color: '#ffffff'
+                            color: textColor
                         },
                         ticks: {
-                            color: '#ffffff'
+                            color: textColor
                         },
                         grid: {
-                            color: 'rgba(255,255,255,0.15)'
+                            color: 'rgba(128,128,128,0.2)'
                         }
                     },
                     x: {
@@ -205,13 +271,13 @@ function makeBarChart(devices, now) {
                         title: {
                             display: true,
                             text: 'IoT Devices',
-                            color: '#ffffff'
+                            color: textColor
                         },
                         ticks: {
-                            color: '#ffffff'
+                            color: textColor
                         },
                         grid: {
-                            color: 'rgba(255,255,255,0.15)'
+                            color: 'rgba(128,128,128,0.16)'
                         }
                     }
                 },
@@ -224,7 +290,7 @@ function makeBarChart(devices, now) {
                     legend: {
                         display: false,
                         labels: {
-                            color: '#ffffff'
+                            color: textColor
                         }
                     }
                 }
@@ -233,13 +299,413 @@ function makeBarChart(devices, now) {
     }
 }
 
+function getHourlyBucketStarts(now, hourCount) {
+    const currentHourStart = Math.floor(now / 3600) * 3600;
+    const hourStarts = [];
+
+    for (let index = 0; index < hourCount; index++) {
+        const hoursBeforeCurrentHour = hourCount - 1 - index;
+        const hourStart = currentHourStart - (hoursBeforeCurrentHour * 3600);
+        hourStarts.push(hourStart);
+    }
+
+    return hourStarts;
+}
+
+function formatHourLabel(timestamp) {
+    return new Date(timestamp * 1000).toLocaleTimeString([], {
+        hour: "numeric"
+    });
+}
+
+function getReadingNumber(reading) {
+    const readingNumber = Number(reading);
+
+    if (Number.isFinite(readingNumber)) {
+        return readingNumber;
+    }
+
+    return null;
+}
+
+function getChartTextColor() {
+    return getComputedStyle(document.body).color;
+}
+
+function getHourlyAverages(readings, hourStarts) {
+    const bucketsByHour = new Map();
+
+    hourStarts.forEach(hourStart => {
+        bucketsByHour.set(hourStart, { total: 0, count: 0 });
+    });
+
+    const firstHourStart = hourStarts[0];
+    const finalHourEnd = hourStarts[hourStarts.length - 1] + 3600;
+
+    if (!readings) {
+        readings = {};
+    }
+
+    Object.entries(readings).forEach(([timestampStr, reading]) => {
+        const timestamp = Number(timestampStr);
+        const readingNumber = getReadingNumber(reading);
+
+        if (!Number.isFinite(timestamp) || readingNumber === null) {
+            return;
+        }
+
+        if (timestamp < firstHourStart || timestamp >= finalHourEnd) {
+            return;
+        }
+
+        const hourStart = Math.floor(timestamp / 3600) * 3600;
+        const bucket = bucketsByHour.get(hourStart);
+
+        if (bucket) {
+            bucket.total += readingNumber;
+            bucket.count++;
+        }
+    });
+
+    const hourlyAverages = [];
+
+    hourStarts.forEach(hourStart => {
+        const bucket = bucketsByHour.get(hourStart);
+
+        if (bucket.count > 0) {
+            hourlyAverages.push(Number((bucket.total / bucket.count).toFixed(1)));
+        } else {
+            hourlyAverages.push(null);
+        }
+    });
+
+    return hourlyAverages;
+}
+
+function makeHourlyNoiseLineChart(devices, now) {
+    const ctx = document.getElementById("line-chart");
+    if (!ctx) {
+        console.error("Canvas element with ID 'line-chart' not found for Chart.js.");
+        return;
+    }
+
+    const hourStarts = getHourlyBucketStarts(now, 12);
+    const chartLabels = hourStarts.map(formatHourLabel);
+    const textColor = getChartTextColor();
+
+    const datasets = [];
+
+    getDeviceIds(devices).forEach((deviceId, index) => {
+        const deviceData = devices[deviceId];
+        const deviceName = deviceData.metadata?.deviceName || `Device ${deviceId}`;
+        const color = getDeviceColor(index);
+
+        datasets.push({
+            label: deviceName,
+            data: getHourlyAverages(deviceData.data, hourStarts),
+            borderColor: color,
+            backgroundColor: `${color}33`,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            spanGaps: true
+        });
+    });
+
+    if (hourlyNoiseChartInstance) {
+        hourlyNoiseChartInstance.data.labels = chartLabels;
+        hourlyNoiseChartInstance.data.datasets = datasets;
+        hourlyNoiseChartInstance.options.scales.x.title.color = textColor;
+        hourlyNoiseChartInstance.options.scales.x.ticks.color = textColor;
+        hourlyNoiseChartInstance.options.scales.y.title.color = textColor;
+        hourlyNoiseChartInstance.options.scales.y.ticks.color = textColor;
+        hourlyNoiseChartInstance.options.plugins.legend.labels.color = textColor;
+        hourlyNoiseChartInstance.update("none");
+        return;
+    }
+
+    hourlyNoiseChartInstance = new Chart(ctx.getContext("2d"), {
+        type: "line",
+        data: {
+            labels: chartLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 0
+            },
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+            scales: {
+                y: {
+                    type: "linear",
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Average Noise (dBA)",
+                        color: textColor
+                    },
+                    ticks: {
+                        precision: 0,
+                        color: textColor
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.2)"
+                    }
+                },
+                x: {
+                    type: "category",
+                    title: {
+                        display: true,
+                        text: "Hour",
+                        color: textColor
+                    },
+                    ticks: {
+                        color: textColor
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.16)"
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const value = context.parsed.y;
+                            if (value === null) {
+                                return `${context.dataset.label}: no readings`;
+                            }
+                            return `${context.dataset.label}: ${value} dBA`;
+                        }
+                    }
+                },
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: textColor
+                    }
+                }
+            }
+        }
+    });
+}
+
+function getThresholdValue() {
+    const slider = document.getElementById("threshold-slider");
+
+    if (!slider) {
+        return 70;
+    }
+
+    return Number(slider.value);
+}
+
+function getThresholdWindowSeconds() {
+    const windowSelect = document.getElementById("threshold-window");
+
+    if (!windowSelect) {
+        return 86400;
+    }
+
+    return Number(windowSelect.value);
+}
+
+function getThresholdWindowLabel() {
+    const windowSelect = document.getElementById("threshold-window");
+
+    if (!windowSelect) {
+        return "last 24 hours";
+    }
+
+    return windowSelect.options[windowSelect.selectedIndex].text.toLowerCase();
+}
+
+function updateThresholdLabel() {
+    const valueElement = document.getElementById("threshold-value");
+    if (valueElement) {
+        valueElement.textContent = getThresholdValue();
+    }
+}
+
+function getThresholdData(readings, now, threshold, windowSeconds) {
+    const earliestTime = now - windowSeconds;
+    let totalReadings = 0;
+    let readingsAboveThreshold = 0;
+
+    if (!readings) {
+        readings = {};
+    }
+
+    Object.entries(readings).forEach(([timestampStr, reading]) => {
+        const timestamp = Number(timestampStr);
+        const readingNumber = getReadingNumber(reading);
+
+        if (!Number.isFinite(timestamp) || readingNumber === null) {
+            return;
+        }
+
+        if (timestamp >= earliestTime && timestamp <= now) {
+            totalReadings++;
+            if (readingNumber >= threshold) {
+                readingsAboveThreshold++;
+            }
+        }
+    });
+
+    let percentage = 0;
+    if (totalReadings > 0) {
+        percentage = (readingsAboveThreshold / totalReadings) * 100;
+    }
+
+    return {
+        percentage: Number(percentage.toFixed(1)),
+        readingsAboveThreshold: readingsAboveThreshold,
+        totalReadings: totalReadings
+    };
+}
+
+function makeThresholdChart(devices, now) {
+    const ctx = document.getElementById("threshold-chart");
+    if (!ctx) {
+        console.error("Canvas element with ID 'threshold-chart' not found for Chart.js.");
+        return;
+    }
+
+    const threshold = getThresholdValue();
+    const windowSeconds = getThresholdWindowSeconds();
+    const windowLabel = getThresholdWindowLabel();
+    const chartLabels = [];
+    const chartData = [];
+    const barColors = [];
+    const counts = [];
+
+    getDeviceIds(devices).forEach((deviceId, index) => {
+        const deviceData = devices[deviceId];
+        const deviceName = deviceData.metadata?.deviceName || `Device ${deviceId}`;
+        const thresholdData = getThresholdData(deviceData.data, now, threshold, windowSeconds);
+        const color = getDeviceColor(index);
+
+        chartLabels.push(deviceName);
+        chartData.push(thresholdData.percentage);
+        barColors.push(color);
+        counts.push(thresholdData);
+    });
+
+    if (thresholdChartInstance) {
+        thresholdChartInstance.data.labels = chartLabels;
+        thresholdChartInstance.data.datasets[0].label = `Readings at or above ${threshold}dBA (${windowLabel})`;
+        thresholdChartInstance.data.datasets[0].data = chartData;
+        thresholdChartInstance.data.datasets[0].backgroundColor = getTransparentColors(barColors);
+        thresholdChartInstance.data.datasets[0].borderColor = barColors;
+        thresholdChartInstance.data.datasets[0].counts = counts;
+        thresholdChartInstance.update();
+        return;
+    }
+
+    const textColor = getChartTextColor();
+
+    thresholdChartInstance = new Chart(ctx.getContext("2d"), {
+        type: "bar",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: `Readings at or above ${threshold}dBA (${windowLabel})`,
+                data: chartData,
+                counts: counts,
+                backgroundColor: getTransparentColors(barColors),
+                borderColor: barColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 250
+            },
+            scales: {
+                y: {
+                    type: "linear",
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: "% above threshold",
+                        color: textColor
+                    },
+                    ticks: {
+                        color: textColor,
+                        callback: (value) => `${value}%`
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.2)"
+                    }
+                },
+                x: {
+                    type: "category",
+                    ticks: {
+                        color: textColor
+                    },
+                    grid: {
+                        color: "rgba(128,128,128,0.16)"
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const count = context.dataset.counts[context.dataIndex];
+                            return `${context.parsed.y}% (${count.readingsAboveThreshold}/${count.totalReadings} readings)`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+const thresholdSlider = document.getElementById("threshold-slider");
+if (thresholdSlider) {
+    thresholdSlider.addEventListener("input", () => {
+        updateThresholdLabel();
+        if (latestDevices && latestNow) {
+            makeThresholdChart(latestDevices, latestNow);
+        }
+    });
+}
+
+const thresholdWindow = document.getElementById("threshold-window");
+if (thresholdWindow) {
+    thresholdWindow.addEventListener("change", () => {
+        if (latestDevices && latestNow) {
+            makeThresholdChart(latestDevices, latestNow);
+        }
+    });
+}
+
 
 subscribeToDataUpdates((data) => {
     if (data) {
         const now = Math.round(Date.now()/1000);
+        latestDevices = data.devices;
+        latestNow = now;
+
         populateDeviceList(data.devices, now);
         populateReadingsList(data.devices, now);
         makeBarChart(data.devices, now);
+        makeHourlyNoiseLineChart(data.devices, now);
+        updateThresholdLabel();
+        makeThresholdChart(data.devices, now);
 
         const dataDumpField = document.getElementById("dumpField");
         //if (dataDumpField)dataDumpField.textContent = JSON.stringify(data, null, 2);
