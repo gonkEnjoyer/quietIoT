@@ -218,6 +218,7 @@ function makeBarChart(devices, now) {
     }
 
     const chartCtx = ctx.getContext('2d');
+    const textColor = getChartTextColor();
 
     // If the chart instance already exists, update its data
     if (myBarChartInstance) {
@@ -225,6 +226,10 @@ function makeBarChart(devices, now) {
         myBarChartInstance.data.datasets[0].data = chartData;
         myBarChartInstance.data.datasets[0].backgroundColor = getTransparentColors(barColors);
         myBarChartInstance.data.datasets[0].borderColor = barColors;
+        myBarChartInstance.options.scales.x.title.color = textColor;
+        myBarChartInstance.options.scales.x.ticks.color = textColor;
+        myBarChartInstance.options.scales.y.title.color = textColor;
+        myBarChartInstance.options.scales.y.ticks.color = textColor;
         myBarChartInstance.update(); // This will animate the changes
     } else {
         // Otherwise, create a new chart instance
@@ -252,13 +257,13 @@ function makeBarChart(devices, now) {
                         title: {
                             display: true,
                             text: 'Average Noise (dBA)',
-                            color: '#ffffff'
+                            color: textColor
                         },
                         ticks: {
-                            color: '#ffffff'
+                            color: textColor
                         },
                         grid: {
-                            color: 'rgba(255,255,255,0.15)'
+                            color: 'rgba(128,128,128,0.2)'
                         }
                     },
                     x: {
@@ -266,13 +271,13 @@ function makeBarChart(devices, now) {
                         title: {
                             display: true,
                             text: 'IoT Devices',
-                            color: '#ffffff'
+                            color: textColor
                         },
                         ticks: {
-                            color: '#ffffff'
+                            color: textColor
                         },
                         grid: {
-                            color: 'rgba(255,255,255,0.15)'
+                            color: 'rgba(128,128,128,0.16)'
                         }
                     }
                 },
@@ -285,7 +290,7 @@ function makeBarChart(devices, now) {
                     legend: {
                         display: false,
                         labels: {
-                            color: '#ffffff'
+                            color: textColor
                         }
                     }
                 }
