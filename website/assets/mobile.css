@@ -13,6 +13,10 @@
         min-width: 0;
     }
 
+    .dashboard-wide-card{
+        grid-column: auto;
+    }
+
     .chart-frame{
         height: 14rem;
         min-height: 220px;

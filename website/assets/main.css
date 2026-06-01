@@ -151,6 +151,85 @@ ol li:not(:first-child){
     margin-top: 10px
 }
 
+/* Instruction carousel */
+.instruction-carousel{
+    margin: 5px;
+}
+
+.carousel-window{
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.carousel-track{
+    display: flex;
+    transition: transform 0.3s;
+}
+
+.carousel-slide{
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.carousel-image-placeholder{
+    aspect-ratio: 16 / 9;
+    background-color: var(--tertiary-bg);
+    border: 2px dashed var(--secondary-accent);
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.carousel-slide img{
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.carousel-slide p{
+    margin: 0;
+    color: var(--minor-text-color);
+    font-size: 0.9rem;
+}
+
+.carousel-controls{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 8px 0 2px;
+}
+
+.carousel-btn{
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.carousel-dots{
+    display: flex;
+    gap: 6px;
+}
+
+.carousel-dot{
+    width: 0.65rem;
+    height: 0.65rem;
+    padding: 0;
+    border-radius: 50%;
+    background-color: var(--minor-text-color);
+    opacity: 0.5;
+}
+
+.carousel-dot.active{
+    background-color: var(--secondary-accent);
+    opacity: 1;
+}
+
 /* Navbar */
 .navBar{
     position: sticky;
@@ -396,6 +475,10 @@ ol li:not(:first-child){
     min-width: 20rem;
 }
 
+.dashboard-wide-card{
+    grid-column: span 2;
+}
+
 .chart-frame{
     height: 18rem;
     min-height: 260px;
@@ -419,6 +502,14 @@ ol li:not(:first-child){
 .threshold-control input{
     flex: 1;
     min-width: 8rem;
+}
+
+.threshold-control select{
+    background-color: var(--tertiary-bg);
+    border: 1px solid var(--primary-accent);
+    border-radius: 0.3rem;
+    color: var(--text-color);
+    padding: 5px;
 }
 
 .device-list{

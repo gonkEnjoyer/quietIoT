@@ -52,9 +52,7 @@
                         <h3>Hour Average</h3>
                         <canvas id = "noiseChart"></canvas>
                     </div>
-                    <div class = "dashboard-card">
-                    </div>
-                    <div class = "dashboard-card dashboard-chart-card">
+                    <div class = "dashboard-card dashboard-chart-card dashboard-wide-card">
                         <h3>Average last 12 hours</h3>
                         <div class = "chart-frame">
                             <canvas id = "line-chart"></canvas>
@@ -65,6 +63,12 @@
                         <div class = "threshold-control">
                             <label for = "threshold-slider">Threshold: <span id = "threshold-value">70</span>dBA</label>
                             <input type = "range" id = "threshold-slider" min = "40" max = "100" value = "70">
+                            <label for = "threshold-window">Period</label>
+                            <select id = "threshold-window">
+                                <option value = "3600">Last hour</option>
+                                <option value = "43200">Last 12 hours</option>
+                                <option value = "86400" selected>Last 24 hours</option>
+                            </select>
                         </div>
                         <div class = "chart-frame">
                             <canvas id = "threshold-chart"></canvas>

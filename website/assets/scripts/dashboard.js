@@ -181,7 +181,7 @@ function makeBarChart(devices, now) {
     const chartData = [];
     const barColors = [];
 
-    const oneHourAgo = now - 3600; // Unix timestamp for one hour ago
+    const oneHourAgo = now - 3600;
 
     getDeviceIds(devices).forEach((deviceId, index) => {
         const deviceData = devices[deviceId];
@@ -416,7 +416,7 @@ function makeHourlyNoiseLineChart(devices, now) {
         hourlyNoiseChartInstance.options.scales.y.title.color = textColor;
         hourlyNoiseChartInstance.options.scales.y.ticks.color = textColor;
         hourlyNoiseChartInstance.options.plugins.legend.labels.color = textColor;
-        hourlyNoiseChartInstance.update();
+        hourlyNoiseChartInstance.update("none");
         return;
     }
 
@@ -430,7 +430,7 @@ function makeHourlyNoiseLineChart(devices, now) {
             responsive: true,
             maintainAspectRatio: false,
             animation: {
-                duration: 400
+                duration: 0
             },
             interaction: {
                 mode: "index",
@@ -501,6 +501,26 @@ function getThresholdValue() {
     return Number(slider.value);
 }
 
+function getThresholdWindowSeconds() {
+    const windowSelect = document.getElementById("threshold-window");
+
+    if (!windowSelect) {
+        return 86400;
+    }
+
+    return Number(windowSelect.value);
+}
+
+function getThresholdWindowLabel() {
+    const windowSelect = document.getElementById("threshold-window");
+
+    if (!windowSelect) {
+        return "last 24 hours";
+    }
+
+    return windowSelect.options[windowSelect.selectedIndex].text.toLowerCase();
+}
+
 function updateThresholdLabel() {
     const valueElement = document.getElementById("threshold-value");
     if (valueElement) {
@@ -508,8 +528,8 @@ function updateThresholdLabel() {
     }
 }
 
-function getThresholdData(readings, now, threshold) {
-    const oneDayAgo = now - 86400;
+function getThresholdData(readings, now, threshold, windowSeconds) {
+    const earliestTime = now - windowSeconds;
     let totalReadings = 0;
     let readingsAboveThreshold = 0;
 
@@ -525,7 +545,7 @@ function getThresholdData(readings, now, threshold) {
             return;
         }
 
-        if (timestamp >= oneDayAgo && timestamp <= now) {
+        if (timestamp >= earliestTime && timestamp <= now) {
             totalReadings++;
             if (readingNumber >= threshold) {
                 readingsAboveThreshold++;
@@ -553,6 +573,8 @@ function makeThresholdChart(devices, now) {
     }
 
     const threshold = getThresholdValue();
+    const windowSeconds = getThresholdWindowSeconds();
+    const windowLabel = getThresholdWindowLabel();
     const chartLabels = [];
     const chartData = [];
     const barColors = [];
@@ -561,7 +583,7 @@ function makeThresholdChart(devices, now) {
     getDeviceIds(devices).forEach((deviceId, index) => {
         const deviceData = devices[deviceId];
         const deviceName = deviceData.metadata?.deviceName || `Device ${deviceId}`;
-        const thresholdData = getThresholdData(deviceData.data, now, threshold);
+        const thresholdData = getThresholdData(deviceData.data, now, threshold, windowSeconds);
         const color = getDeviceColor(index);
 
         chartLabels.push(deviceName);
@@ -572,7 +594,7 @@ function makeThresholdChart(devices, now) {
 
     if (thresholdChartInstance) {
         thresholdChartInstance.data.labels = chartLabels;
-        thresholdChartInstance.data.datasets[0].label = `Readings at or above ${threshold}dBA`;
+        thresholdChartInstance.data.datasets[0].label = `Readings at or above ${threshold}dBA (${windowLabel})`;
         thresholdChartInstance.data.datasets[0].data = chartData;
         thresholdChartInstance.data.datasets[0].backgroundColor = getTransparentColors(barColors);
         thresholdChartInstance.data.datasets[0].borderColor = barColors;
@@ -588,7 +610,7 @@ function makeThresholdChart(devices, now) {
         data: {
             labels: chartLabels,
             datasets: [{
-                label: `Readings at or above ${threshold}dBA`,
+                label: `Readings at or above ${threshold}dBA (${windowLabel})`,
                 data: chartData,
                 counts: counts,
                 backgroundColor: getTransparentColors(barColors),
@@ -651,6 +673,15 @@ const thresholdSlider = document.getElementById("threshold-slider");
 if (thresholdSlider) {
     thresholdSlider.addEventListener("input", () => {
         updateThresholdLabel();
+        if (latestDevices && latestNow) {
+            makeThresholdChart(latestDevices, latestNow);
+        }
+    });
+}
+
+const thresholdWindow = document.getElementById("threshold-window");
+if (thresholdWindow) {
+    thresholdWindow.addEventListener("change", () => {
         if (latestDevices && latestNow) {
             makeThresholdChart(latestDevices, latestNow);
         }
