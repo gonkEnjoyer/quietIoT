@@ -402,6 +402,25 @@ ol li:not(:first-child){
     padding: 0 5px 5px;
 }
 
+.threshold-control{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 5px 10px 0;
+}
+
+.threshold-control label{
+    margin-left: 0;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.threshold-control input{
+    flex: 1;
+    min-width: 8rem;
+}
+
 .device-list{
     list-style-type: none;
     padding: 0;
