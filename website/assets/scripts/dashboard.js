@@ -107,6 +107,7 @@ function populateDeviceList(devices, now) {
 
         const deviceName = deviceData.metadata?.deviceName;
         const deviceLastOnline = deviceData.status?.lastOnline;
+        const deviceTemperature = deviceData.status?.internalTemperature ?? "unknown";
         const deviceStatus = getDeviceStatus(deviceLastOnline, now);
 
         const deviceElement = document.createElement("li");
@@ -117,7 +118,8 @@ function populateDeviceList(devices, now) {
         <br>
         <span style = "font-size: 0.7rem; opacity: 60%;">${deviceStatus}</span>
         <br>
-        <span style = "font-size: 0.5rem; opacity: 60%">ID: ${deviceId}</span>
+        <span style = "font-size: 0.5rem; opacity: 60%">ID: ${deviceId} |</span>
+        <span style = "font-size: 0.5rem; opacity: 60%">Temp: ${deviceTemperature} ℃</span>
         `;
         deviceListElement.appendChild(deviceElement);
     });
