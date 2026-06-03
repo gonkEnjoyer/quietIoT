@@ -564,3 +564,9 @@ ol li:not(:first-child){
     font-size: 3rem;
     font-family: "Source Code Pro";
 }
+
+.password-requirements{
+    font-size: 0.8rem;
+    color: var(--minor-text-color);
+    font-family: "Inter";
+}

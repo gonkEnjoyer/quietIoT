@@ -68,24 +68,48 @@ if (signupForm) {
         const password = signupForm.querySelector("input[name='password-input']").value;
         const confirmPassword = signupForm.querySelector("#password-confirm").value;
 
+        if (text) text.textContent = "";
+        button.disabled = true;
+        if (loadingIcon) loadingIcon.classList.remove("hidden");
+
         if (password !== confirmPassword) {
             alert("Error: passwords must match");
             console.error("Passwords do not match");
             return;
         }
 
+        const passwordStatus = await validatePassword(auth, password);
+        if (!passwordStatus.isValid) {
+
+            let passwordIssues = []
+            if (!passwordStatus.meetsMinPasswordLength) {
+                passwordIssues.push("Password is too short");
+            }
+
+            if (!passwordStatus.containsUppercaseLetter) {
+                passwordIssues.push("Password needs an uppercase letter");
+            }
+
+            if (!passwordStatus.containsNumericCharacter){
+                passwordIssues.push("Password needs a numerical character");
+            }
+            alert(passwordIssues.join("\n"));
+
+            if (text) text.innerHTML = "Sign up &#8227";
+            button.disabled = false;
+            if (loadingIcon) loadingIcon.classList.add("hidden");
+
+            return;
+        }
+        /*
         if (password.length < 8) {
             alert("Error: password must be at least 8 characters");
             console.error("Password must be at least 8 characters");
             return;
         }
-
-        if (loadingIcon) loadingIcon.classList.remove("hidden");
+        */
 
         try {
-            if (text) text.textContent = "";
-            button.disabled = true;
-
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             
             alert("Account created: " + userCredential.user.email);
@@ -162,7 +186,7 @@ onAuthStateChanged(auth, (user) => {
                         signOut(auth);
                         window.location.reload();
                     } else {
-                        alert("Your account was not deleted");
+                        alert("Your account was not deleted.");
                     }
                 } catch (error) {
                     console.error("Logout failed:", error.code, error.message);
