@@ -156,12 +156,14 @@ onAuthStateChanged(auth, (user) => {
         if (deleteAccountBtn) {
             deleteAccountBtn.onclick = async () => {
                 try {
-                    confirm("Are you sure you wish to delete your account? You will lose all account and sensor data permanently.");
-
-                    await deleteUser(user);
-                    console.log("User deleted");
-                    signOut(auth);
-                    window.location.reload();
+                    if (confirm("Are you sure you wish to delete your account? You will lose access to your account permanently.")){
+                        await deleteUser(user);
+                        console.log("User deleted");
+                        signOut(auth);
+                        window.location.reload();
+                    } else {
+                        alert("Your account was not deleted");
+                    }
                 } catch (error) {
                     console.error("Logout failed:", error.code, error.message);
                 }
