@@ -51,14 +51,23 @@
                         <canvas id = "noiseChart"></canvas>
                     </div>
                     <div class = "dashboard-card dashboard-chart-card dashboard-wide-card">
-                        <h3>Average last 12 hours</h3>
+                        <h3>Hourly averages</h3>
+                        <div class = "chart-control">
+                            <label for = "line-chart-range">Period</label>
+                            <select id = "line-chart-range">
+                                <option value = "168">Last 7 days</option>
+                                <option value = "72">Last 3 days</option>
+                                <option value = "24">Last 24 hours</option>
+                                <option value = "12" selected>Last 12 hours</option>
+                            </select>
+                        </div>
                         <div class = "chart-frame">
                             <canvas id = "line-chart"></canvas>
                         </div>
                     </div>
                     <div class = "dashboard-card dashboard-chart-card">
                         <h3>Readings above threshold</h3>
-                        <div class = "threshold-control">
+                        <div class = "chart-control">
                             <label for = "threshold-slider">Threshold: <span id = "threshold-value">70</span>dBA</label>
                             <input type = "range" id = "threshold-slider" min = "40" max = "100" value = "70">
                             <label for = "threshold-window">Period</label>

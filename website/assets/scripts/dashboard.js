@@ -305,6 +305,16 @@ function makeBarChart(devices, now) {
     }
 }
 
+function getLineChartHourCount() {
+    const rangePicker = document.getElementById("line-chart-range");
+
+    if (!rangePicker) {
+        return 12;
+    }
+
+    return Number(rangePicker.value);
+}
+
 function getHourlyBucketStarts(now, hourCount) {
     const currentHourStart = Math.floor(now / 3600) * 3600;
     const hourStarts = [];
@@ -318,10 +328,17 @@ function getHourlyBucketStarts(now, hourCount) {
     return hourStarts;
 }
 
-function formatHourLabel(timestamp) {
-    return new Date(timestamp * 1000).toLocaleTimeString([], {
+function formatHourLabel(timestamp, includeDay) {
+    const date = new Date(timestamp * 1000);
+    const labelOptions = {
         hour: "numeric"
-    });
+    };
+
+    if (includeDay) {
+        labelOptions.weekday = "short";
+    }
+
+    return date.toLocaleTimeString([], labelOptions);
 }
 
 function getReadingNumber(reading) {
@@ -395,8 +412,16 @@ function makeHourlyNoiseLineChart(devices, now) {
         return;
     }
 
-    const hourStarts = getHourlyBucketStarts(now, 12);
-    const chartLabels = hourStarts.map(formatHourLabel);
+    const hourCount = getLineChartHourCount();
+    const hourStarts = getHourlyBucketStarts(now, hourCount);
+    const includeDayInLabels = hourCount > 24;
+    const chartLabels = [];
+
+    hourStarts.forEach(hourStart => {
+        const label = formatHourLabel(hourStart, includeDayInLabels);
+        chartLabels.push(label);
+    });
+
     const textColor = getChartTextColor();
 
     const datasets = [];
@@ -695,6 +720,15 @@ if (thresholdWindow) {
     thresholdWindow.addEventListener("change", () => {
         if (latestDevices && latestNow) {
             makeThresholdChart(latestDevices, latestNow);
+        }
+    });
+}
+
+const lineChartRange = document.getElementById("line-chart-range");
+if (lineChartRange) {
+    lineChartRange.addEventListener("change", () => {
+        if (latestDevices && latestNow) {
+            makeHourlyNoiseLineChart(latestDevices, latestNow);
         }
     });
 }

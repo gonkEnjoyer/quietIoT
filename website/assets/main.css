@@ -485,7 +485,7 @@ ol li:not(:first-child){
     padding: 0 5px 5px;
 }
 
-.threshold-control{
+.chart-control{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -493,18 +493,18 @@ ol li:not(:first-child){
     margin: 5px 10px 0;
 }
 
-.threshold-control label{
+.chart-control label{
     margin-left: 0;
     font-size: 0.8rem;
     white-space: nowrap;
 }
 
-.threshold-control input{
+.chart-control input{
     flex: 1;
     min-width: 8rem;
 }
 
-.threshold-control select{
+.chart-control select{
     background-color: var(--tertiary-bg);
     border: 1px solid var(--primary-accent);
     border-radius: 0.3rem;
