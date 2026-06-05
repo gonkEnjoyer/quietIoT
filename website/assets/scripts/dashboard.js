@@ -305,34 +305,59 @@ function makeBarChart(devices, now) {
     }
 }
 
-function getLineChartHourCount() {
+function getLineChartSettings() {
     const rangePicker = document.getElementById("line-chart-range");
 
     if (!rangePicker) {
-        return 12;
+        return {
+            bucketCount: 12,
+            bucketLengthSeconds: 3600,
+            includeDayInLabels: false,
+            includeMinuteInLabels: false
+        };
     }
 
-    return Number(rangePicker.value);
-}
-
-function getHourlyBucketStarts(now, hourCount) {
-    const currentHourStart = Math.floor(now / 3600) * 3600;
-    const hourStarts = [];
-
-    for (let index = 0; index < hourCount; index++) {
-        const hoursBeforeCurrentHour = hourCount - 1 - index;
-        const hourStart = currentHourStart - (hoursBeforeCurrentHour * 3600);
-        hourStarts.push(hourStart);
+    if (rangePicker.value === "last-hour") {
+        return {
+            bucketCount: 60,
+            bucketLengthSeconds: 60,
+            includeDayInLabels: false,
+            includeMinuteInLabels: true
+        };
     }
 
-    return hourStarts;
+    const hourCount = Number(rangePicker.value);
+
+    return {
+        bucketCount: hourCount,
+        bucketLengthSeconds: 3600,
+        includeDayInLabels: hourCount > 24,
+        includeMinuteInLabels: false
+    };
 }
 
-function formatHourLabel(timestamp, includeDay) {
+function getLineChartBucketStarts(now, bucketCount, bucketLengthSeconds) {
+    const currentBucketStart = Math.floor(now / bucketLengthSeconds) * bucketLengthSeconds;
+    const bucketStarts = [];
+
+    for (let index = 0; index < bucketCount; index++) {
+        const bucketsBeforeCurrentBucket = bucketCount - 1 - index;
+        const bucketStart = currentBucketStart - (bucketsBeforeCurrentBucket * bucketLengthSeconds);
+        bucketStarts.push(bucketStart);
+    }
+
+    return bucketStarts;
+}
+
+function formatLineChartLabel(timestamp, includeDay, includeMinute) {
     const date = new Date(timestamp * 1000);
     const labelOptions = {
         hour: "numeric"
     };
+
+    if (includeMinute) {
+        labelOptions.minute = "2-digit";
+    }
 
     if (includeDay) {
         labelOptions.weekday = "short";
@@ -355,15 +380,15 @@ function getChartTextColor() {
     return getComputedStyle(document.body).color;
 }
 
-function getHourlyAverages(readings, hourStarts) {
-    const bucketsByHour = new Map();
+function getLineChartAverages(readings, bucketStarts, bucketLengthSeconds) {
+    const bucketsByStart = new Map();
 
-    hourStarts.forEach(hourStart => {
-        bucketsByHour.set(hourStart, { total: 0, count: 0 });
+    bucketStarts.forEach(bucketStart => {
+        bucketsByStart.set(bucketStart, { total: 0, count: 0 });
     });
 
-    const firstHourStart = hourStarts[0];
-    const finalHourEnd = hourStarts[hourStarts.length - 1] + 3600;
+    const firstBucketStart = bucketStarts[0];
+    const finalBucketEnd = bucketStarts[bucketStarts.length - 1] + bucketLengthSeconds;
 
     if (!readings) {
         readings = {};
@@ -377,12 +402,12 @@ function getHourlyAverages(readings, hourStarts) {
             return;
         }
 
-        if (timestamp < firstHourStart || timestamp >= finalHourEnd) {
+        if (timestamp < firstBucketStart || timestamp >= finalBucketEnd) {
             return;
         }
 
-        const hourStart = Math.floor(timestamp / 3600) * 3600;
-        const bucket = bucketsByHour.get(hourStart);
+        const bucketStart = Math.floor(timestamp / bucketLengthSeconds) * bucketLengthSeconds;
+        const bucket = bucketsByStart.get(bucketStart);
 
         if (bucket) {
             bucket.total += readingNumber;
@@ -390,35 +415,42 @@ function getHourlyAverages(readings, hourStarts) {
         }
     });
 
-    const hourlyAverages = [];
+    const lineChartAverages = [];
 
-    hourStarts.forEach(hourStart => {
-        const bucket = bucketsByHour.get(hourStart);
+    bucketStarts.forEach(bucketStart => {
+        const bucket = bucketsByStart.get(bucketStart);
 
         if (bucket.count > 0) {
-            hourlyAverages.push(Number((bucket.total / bucket.count).toFixed(1)));
+            lineChartAverages.push(Number((bucket.total / bucket.count).toFixed(1)));
         } else {
-            hourlyAverages.push(null);
+            lineChartAverages.push(null);
         }
     });
 
-    return hourlyAverages;
+    return lineChartAverages;
 }
 
-function makeHourlyNoiseLineChart(devices, now) {
+function makeNoiseLineChart(devices, now) {
     const ctx = document.getElementById("line-chart");
     if (!ctx) {
         console.error("Canvas element with ID 'line-chart' not found for Chart.js.");
         return;
     }
 
-    const hourCount = getLineChartHourCount();
-    const hourStarts = getHourlyBucketStarts(now, hourCount);
-    const includeDayInLabels = hourCount > 24;
+    const lineChartSettings = getLineChartSettings();
+    const bucketStarts = getLineChartBucketStarts(
+        now,
+        lineChartSettings.bucketCount,
+        lineChartSettings.bucketLengthSeconds
+    );
     const chartLabels = [];
 
-    hourStarts.forEach(hourStart => {
-        const label = formatHourLabel(hourStart, includeDayInLabels);
+    bucketStarts.forEach(bucketStart => {
+        const label = formatLineChartLabel(
+            bucketStart,
+            lineChartSettings.includeDayInLabels,
+            lineChartSettings.includeMinuteInLabels
+        );
         chartLabels.push(label);
     });
 
@@ -433,7 +465,11 @@ function makeHourlyNoiseLineChart(devices, now) {
 
         datasets.push({
             label: deviceName,
-            data: getHourlyAverages(deviceData.data, hourStarts),
+            data: getLineChartAverages(
+                deviceData.data,
+                bucketStarts,
+                lineChartSettings.bucketLengthSeconds
+            ),
             borderColor: color,
             backgroundColor: `${color}33`,
             borderWidth: 2,
@@ -728,7 +764,7 @@ const lineChartRange = document.getElementById("line-chart-range");
 if (lineChartRange) {
     lineChartRange.addEventListener("change", () => {
         if (latestDevices && latestNow) {
-            makeHourlyNoiseLineChart(latestDevices, latestNow);
+            makeNoiseLineChart(latestDevices, latestNow);
         }
     });
 }
@@ -743,7 +779,7 @@ subscribeToDataUpdates((data) => {
         populateDeviceList(data.devices, now);
         populateReadingsList(data.devices, now);
         makeBarChart(data.devices, now);
-        makeHourlyNoiseLineChart(data.devices, now);
+        makeNoiseLineChart(data.devices, now);
         updateThresholdLabel();
         makeThresholdChart(data.devices, now);
 
