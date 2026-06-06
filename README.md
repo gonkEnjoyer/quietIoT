@@ -9,6 +9,7 @@
 ![Hosting](https://img.shields.io/badge/hosting-Vercel-black)
 ![IoT](https://img.shields.io/badge/IoT-ESP32%20%7C%20Arduino%20C%2B%2B-green)
 ![Charts](https://img.shields.io/badge/charts-Chart.js-ff6384)
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
 **Live site:** https://quietiot.vercel.app
 
